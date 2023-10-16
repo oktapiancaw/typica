@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "multidb-models"
+version = "0.1.16"
+description = ""
+authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
+readme = "README.md"
+packages = [{include = "multidb_models"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.3.0"
+pytz = "^2023.3.post1"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "ebdesk"
+url = "http://192.168.20.127:6060/simple/"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
