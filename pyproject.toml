@@ -20,6 +20,10 @@ name = "ebdesk"
 url = "http://192.168.20.127:6060/simple/"
 priority = "supplemental"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

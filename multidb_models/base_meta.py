@@ -1,6 +1,6 @@
 from uuid import uuid4
 from typing import Optional
-from pydantic import BaseModel, Field, UUID4
+from pydantic import BaseModel, Field, UUID4, field_serializer
 from datetime import datetime
 from .utils.enums import DataStatus
 
@@ -16,7 +16,7 @@ class IdMongoMeta(BaseModel):
     """
     _id support for mongo
     """
-    id: UUID4 = Field(default_factory=uuid4, alias='_id')
+    id: str = Field(default_factory=lambda : str(uuid4()), alias='_id')
     
 
 # * Type 1 - Basic metadata
