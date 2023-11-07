@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "multidb-models"
-version = "0.1.16"
+version = "0.1.1"
 description = ""
 authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "README.md"
-packages = [{include = "multidb_models"}]
+packages = [{include = "typica"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -19,7 +19,6 @@ priority = "primary"
 name = "ebdesk"
 url = "http://192.168.20.127:6060/simple/"
 priority = "supplemental"
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"

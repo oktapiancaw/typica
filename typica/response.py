@@ -1,5 +1,5 @@
 from typing import Optional, Any
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field
 
 
 class Pagination(BaseModel):
@@ -44,7 +44,7 @@ class DataValidResponse(BaseModel):
 
     status: bool
     detail: Optional[str] = Field(None)
-    data: Optional[Any] = Field(None)
+    data: Optional[Any] = Field(None, description="Data responses")
 
 
 class CustomMetadataResponse(MetadataResponse):
