@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "multidb-models"
-version = "0.1.1"
+name = "module-typica"
+version = "0.1.2"
 description = ""
 authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "README.md"
