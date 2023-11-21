@@ -1,6 +1,8 @@
 import re
-from typing import Optional
+from typing import Optional, Union
+
 from pydantic import BaseModel, Field, model_validator
+
 from .utils.enums import ConnectionTypes
 
 
@@ -16,7 +18,7 @@ class ConnectionMeta(HostMeta):
 
     username: Optional[str] = Field(None)
     password: Optional[str] = Field(None)
-    database: Optional[str | int] = Field(None, description="Database name")
+    database: Optional[Union[str, int]] = Field(None, description="Database name")
 
 
 class ConnectionUriMeta(ConnectionMeta):
@@ -50,19 +52,19 @@ class ConnectionUriMeta(ConnectionMeta):
                         self.database = other
             if "@" in metadata:
                 if "," in metadata:
-                    metadata, raw_clusters = re.split("\@", metadata)
-                    self.username, self.password = re.split("\:", metadata)
+                    metadata, raw_clusters = re.split(r"\@", metadata)
+                    self.username, self.password = re.split(r"\:", metadata)
                     clustersUri = []
                     for cluster in raw_clusters.split(","):
-                        hostData = re.split("\:", cluster)
+                        hostData = re.split(r"\:", cluster)
                         clustersUri.append(HostMeta(host=hostData[0], port=hostData[1]))
                     self.clustersUri = clustersUri
                 else:
                     self.username, self.password, self.host, self.port = re.split(
-                        "\@|\:", metadata
+                        r"\@|\:", metadata
                     )
             else:
-                self.host, self.port = re.split("\:", metadata)
+                self.host, self.port = re.split(r"\:", metadata)
             self.port = int(self.port)
 
 

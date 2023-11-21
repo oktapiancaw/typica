@@ -1,5 +1,7 @@
-from typing import Optional
+from typing import Optional, Union
+
 from pydantic import BaseModel, Field
+from pytz import common_timezones
 
 from .utils.enums import Order, Operator
 
@@ -8,11 +10,12 @@ class Timeframe(BaseModel):
     gte: Optional[int] = Field(None, alias="from", gte=0)
     lte: Optional[int] = Field(None, alias="to", gte=0)
     field: Optional[str] = Field(None)
+    formatDate: Optional[str] = Field(None)
 
 
 class SearchSchemas(BaseModel):
-    field: str = Field(None)
-    value: int | str = Field("", examples=[0, ""])
+    field: Optional[str] = Field(None)
+    value: Optional[Union[int, str]] = Field("", examples=[0, ""])
     opt: Optional[Operator | None] = Field(None, examples=Operator.list())
 
 
@@ -23,6 +26,7 @@ class OrderSchemas(BaseModel):
 
 class TimeframeSchemas(BaseModel):
     timeframe: Optional[Timeframe] = Field(None)
+    timezone: Optional[str] = Field("Asia/Jakarta", examples=common_timezones)
 
 
 class PaginationSchemas(BaseModel):

@@ -1,4 +1,5 @@
-from typing import Optional, Any
+from typing import Optional, Any, Union
+
 from pydantic import BaseModel, Field
 
 
@@ -12,7 +13,7 @@ class MetadataResponse(BaseModel):
     status: bool
     code: int
     message: Optional[str] = Field(None)
-    timeExecution: Optional[float | int] = Field(None)
+    timeExecution: Optional[Union[float, int]] = Field(None)
 
 
 class MetadataPagination(MetadataResponse):
