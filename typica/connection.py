@@ -19,6 +19,7 @@ class ConnectionMeta(HostMeta):
     username: Optional[str] = Field(None)
     password: Optional[str] = Field(None)
     database: Optional[Union[str, int]] = Field(None, description="Database name")
+    clustersUri: Optional[list[HostMeta] | None] = Field(None)
 
 
 class ConnectionUriMeta(ConnectionMeta):
@@ -35,7 +36,6 @@ class ConnectionUriMeta(ConnectionMeta):
     type_connection: Optional[ConnectionTypes | None] = Field(
         None, examples=ConnectionTypes.list()
     )
-    clustersUri: Optional[list[HostMeta] | None] = Field(None)
 
     @model_validator(mode="after")
     def extract_uri(self):

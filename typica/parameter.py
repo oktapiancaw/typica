@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from pydantic import BaseModel, Field
 from pytz import common_timezones
@@ -15,7 +15,7 @@ class Timeframe(BaseModel):
 
 class SearchSchemas(BaseModel):
     field: Optional[str] = Field(None)
-    value: Optional[Union[int, str]] = Field("", examples=[0, ""])
+    value: Optional[Any] = Field("", examples=[0, ""])
     opt: Optional[Operator | None] = Field(None, examples=Operator.list())
 
 
