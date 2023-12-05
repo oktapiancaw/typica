@@ -7,8 +7,8 @@ from .utils.enums import Order, Operator
 
 
 class Timeframe(BaseModel):
-    gte: Optional[int] = Field(None, alias="from", gte=0)
-    lte: Optional[int] = Field(None, alias="to", gte=0)
+    gte: Optional[Union[str, int]] = Field(None, alias="from")
+    lte: Optional[Union[str, int]] = Field(None, alias="to")
     field: Optional[str] = Field(None)
     formatDate: Optional[str] = Field(None)
 
@@ -30,8 +30,8 @@ class TimeframeSchemas(BaseModel):
 
 
 class PaginationSchemas(BaseModel):
-    page: Optional[int] = Field(None, gte=1)
-    size: Optional[int] = Field(None, gte=1)
+    page: Optional[int] = Field(1, gte=1)
+    size: Optional[int] = Field(10, gte=1)
 
 
 class OrderedPaginationSchemas(PaginationSchemas, OrderSchemas):
