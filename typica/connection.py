@@ -21,6 +21,19 @@ class ConnectionMeta(HostMeta):
     database: Optional[Union[str, int]] = Field(None, description="Database name")
     clustersUri: Optional[list[HostMeta] | None] = Field(None)
 
+    def uri_string(self, base: str = "http", with_db: bool = True) -> str:
+        meta = ""
+        if self.clustersUri:
+            temp = []
+            for cluster in self.clustersUri:
+                temp.append(f"{cluster.host}:{cluster.port}")
+            meta = ",".join(temp)
+        else:
+            meta = f"{self.host}:{self.port}"
+        if self.username:
+            return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
+        return f"{base}://{meta}/{self.database if with_db else ''}"
+
 
 class ConnectionUriMeta(ConnectionMeta):
     """Connection with URI and connection types metadata model

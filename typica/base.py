@@ -30,7 +30,9 @@ class MetaCreate(BaseModel):
     Default create metadata
     """
 
-    createdAt: Optional[int] = Field(int(datetime.now().timestamp() * 1000), ge=0)
+    createdAt: Optional[int] = Field(
+        default_factory=lambda: int(datetime.now().timestamp() * 1000), ge=0
+    )
     createdBy: Optional[str] = Field("")
 
 
