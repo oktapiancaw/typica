@@ -79,6 +79,7 @@ class ConnectionUriMeta(ConnectionMeta):
             else:
                 self.host, self.port = re.split(r"\:", metadata)
             self.port = int(self.port)
+        return self
 
 
 class BaseConnection:
