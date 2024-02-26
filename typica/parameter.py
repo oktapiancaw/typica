@@ -1,9 +1,13 @@
-from typing import Optional, Union, Any
+from typing import TypeVar, Optional, Union, Any
 
 from pydantic import BaseModel, Field
 from pytz import common_timezones
 
 from .utils.enums import Order, Operator
+
+_SearchValueType = TypeVar(
+    "_SearchValueType", str, int, float, bool, list[str], list[int], None
+)
 
 
 class Timeframe(BaseModel):
@@ -15,7 +19,7 @@ class Timeframe(BaseModel):
 
 class SearchSchemas(BaseModel):
     field: Optional[str] = Field(None)
-    value: Optional[Any] = Field("", examples=[0, ""])
+    value: Optional[_SearchValueType] = Field(None, examples=[0, ""])
     opt: Optional[Operator | None] = Field(None, examples=Operator.list())
 
 
@@ -34,12 +38,10 @@ class PaginationSchemas(BaseModel):
     size: Optional[int] = Field(10, gte=1)
 
 
-class OrderedPaginationSchemas(PaginationSchemas, OrderSchemas):
-    ...
+class OrderedPaginationSchemas(PaginationSchemas, OrderSchemas): ...
 
 
-class OrderedSearchSchemas(SearchSchemas, OrderSchemas):
-    ...
+class OrderedSearchSchemas(SearchSchemas, OrderSchemas): ...
 
 
 class MultiFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
@@ -48,5 +50,4 @@ class MultiFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
 
 class BaseFilterSchemas(
     PaginationSchemas, TimeframeSchemas, OrderSchemas, SearchSchemas
-):
-    ...
+): ...
