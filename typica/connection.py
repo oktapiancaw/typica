@@ -1,5 +1,6 @@
 import re
-from typing import Optional, Union
+from abc import ABC, abstractmethod
+from typing import Optional, Union, TypeVar
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -82,6 +83,17 @@ class ConnectionUriMeta(ConnectionMeta):
         return self
 
 
-class BaseConnection:
-    def __init__(self, metadata: ConnectionMeta | ConnectionUriMeta) -> None:
+_ConnectionType = TypeVar("_ConnectionType", ConnectionMeta, ConnectionUriMeta)
+
+
+class BaseConnection(ABC):
+    def __init__(self, metadata: _ConnectionType) -> None:
         self._metadata = metadata
+
+    @abstractmethod
+    def check_connection(self) -> bool:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
