@@ -31,12 +31,14 @@ class Operator(EnumV3):
     equal = ("eq", "value is equals to")
     unequal = ("ne", "value isn't equals to")
     regex = ("re", "regex match")
-    gte = ("ge", "value is greater equals to")
+    gte = ("gte", "value is greater equals to")
     gt = ("gt", "value is greater to")
-    lte = ("le", "value is lower equals to")
+    lte = ("lte", "value is lower equals to")
     lt = ("lt", "value is lower to")
     include = ("in", "values that must exist")
     exclude = ("nin", "values that don't exist")
+    exist = ("exist", "value is exist")
+    not_exist = ("exist", "value is exist")
 
 
 class DataStatus(str, EnumV2):
