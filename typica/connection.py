@@ -1,10 +1,13 @@
 import re
+
 from abc import ABC, abstractmethod
 from typing import Optional, Union, TypeVar
 
 from pydantic import BaseModel, Field, model_validator
 
-from .utils.enums import ConnectionTypes
+from .utils import ConnectionTypes
+
+_ConnectionType = TypeVar("_ConnectionType", ConnectionTypes, str, None)
 
 
 class HostMeta(BaseModel):
@@ -47,7 +50,7 @@ class ConnectionUriMeta(ConnectionMeta):
     """
 
     uri: Optional[str] = Field("", description="")
-    type_connection: Optional[ConnectionTypes | None] = Field(
+    type_connection: Optional[_ConnectionType] = Field(
         None, examples=ConnectionTypes.list()
     )
 
@@ -83,11 +86,11 @@ class ConnectionUriMeta(ConnectionMeta):
         return self
 
 
-_ConnectionType = TypeVar("_ConnectionType", ConnectionMeta, ConnectionUriMeta)
+_ConnectionMetadata = TypeVar("_ConnectionMetadata", ConnectionMeta, ConnectionUriMeta)
 
 
 class BaseConnection(ABC):
-    def __init__(self, metadata: _ConnectionType) -> None:
+    def __init__(self, metadata: _ConnectionMetadata) -> None:
         self._metadata = metadata
 
     @abstractmethod

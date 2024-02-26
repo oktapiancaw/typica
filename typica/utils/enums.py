@@ -66,6 +66,7 @@ class ConnectionTypes(str, EnumV2):
     postgre = "postgresql"
     mysql = "mysql"
     redis = "redis"
+    s3aws = "s3aws"
 
 
 class ResponseMessage(str, EnumV2):

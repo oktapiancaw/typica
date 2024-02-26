@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, UUID4
 from pytz import common_timezones
 
-from .utils.enums import DataStatus
+from .utils import DataStatus
 
 
 class IdMeta(BaseModel):

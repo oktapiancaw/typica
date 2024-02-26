@@ -3,7 +3,7 @@ from typing import TypeVar, Optional, Union, Any
 from pydantic import BaseModel, Field
 from pytz import common_timezones
 
-from .utils.enums import Order, Operator
+from .utils import Order, Operator
 
 _SearchValueType = TypeVar(
     "_SearchValueType", str, int, float, bool, list[str], list[int], None
