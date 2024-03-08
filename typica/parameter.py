@@ -3,8 +3,8 @@ from typing import TypeVar, Optional, Union, Any
 from pydantic import BaseModel, Field
 from pytz import common_timezones
 
-from .utils import Order, Operator
-from .utils.query import ChainQuery, _QueryType, BaseQuery
+from .utils import Order, Operator, FilterOption
+from .utils.query import ChainQuery, _QueryType
 
 _SearchValueType = TypeVar(
     "_SearchValueType", str, int, float, bool, list[str], list[int], None
@@ -47,6 +47,10 @@ class OrderedSearchSchemas(SearchSchemas, OrderSchemas): ...
 
 class MultiFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
     filters: Optional[list[SearchSchemas] | None] = Field(None)
+
+
+class DynamicFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
+    filters: Optional[dict[FilterOption, list[SearchSchemas] | None]] = Field(None)
 
 
 class BaseFilterSchemas(

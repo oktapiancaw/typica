@@ -41,6 +41,13 @@ class Operator(EnumV3):
     not_exist = ("exist", "value is exist")
 
 
+class FilterOption(EnumV3):
+    must = ("must", "List of filter must exact")
+    mustnt = ("mustnt", "List of filter mustn't exact")
+    should = ("should", "List of filter should exact")
+    shouldnt = ("shouldnt", "List of filter shouldn't exact")
+
+
 class DataStatus(str, EnumV2):
     """
     Default status of data
