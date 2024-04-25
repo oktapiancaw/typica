@@ -6,8 +6,8 @@ from pytz import common_timezones
 from .utils import Order, Operator, FilterOption
 from .utils.query import ChainQuery, _QueryType
 
-_SearchValueType = TypeVar(
-    "_SearchValueType", str, int, float, bool, list[str], list[int], None
+SearchValueType = TypeVar(
+    "SearchValueType", str, int, float, bool, list[str], list[int], None
 )
 
 
@@ -20,7 +20,7 @@ class Timeframe(BaseModel):
 
 class SearchSchemas(BaseModel):
     field: Optional[str] = Field(None)
-    value: Optional[_SearchValueType] = Field(None, examples=[0, ""])
+    value: Optional[SearchValueType] = Field(None, examples=[0, ""])
     opt: Optional[Operator | None] = Field(None, examples=Operator.list())
 
 

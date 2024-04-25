@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from .utils import ConnectionTypes
 
-_ConnectionType = TypeVar("_ConnectionType", ConnectionTypes, str, None)
+connectionType = TypeVar("connectionType", ConnectionTypes, str, None)
 
 
 class HostMeta(BaseModel):
@@ -50,7 +50,7 @@ class ConnectionUriMeta(ConnectionMeta):
     """
 
     uri: Optional[str] = Field("", description="")
-    type_connection: Optional[_ConnectionType] = Field(
+    type_connection: Optional[connectionType] = Field(
         None, examples=ConnectionTypes.list()
     )
 
@@ -86,16 +86,12 @@ class ConnectionUriMeta(ConnectionMeta):
         return self
 
 
-_ConnectionMetadata = TypeVar("_ConnectionMetadata", ConnectionMeta, ConnectionUriMeta)
+connectionPayload = TypeVar("connectionPayload", ConnectionMeta, ConnectionUriMeta)
 
 
 class BaseConnection(ABC):
-    def __init__(self, metadata: _ConnectionMetadata) -> None:
+    def __init__(self, metadata: connectionPayload) -> None:
         self._metadata = metadata
-
-    @abstractmethod
-    def check_connection(self) -> bool:
-        pass
 
     @abstractmethod
     def close(self) -> None:

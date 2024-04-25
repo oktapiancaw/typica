@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "module-typica"
-version = "0.1.8"
-description = "Basic Modeling & Utility data for Python"
+version = "0.1.9"
+description = "Standard Pydantic usages & utilities"
 authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "Readme.md"
 packages = [{include = "typica"}]
