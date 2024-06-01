@@ -21,7 +21,7 @@ class Timeframe(BaseModel):
 class SearchSchemas(BaseModel):
     field: Optional[str] = Field(None)
     value: Optional[SearchValueType] = Field(None, examples=[0, ""])
-    opt: Optional[Operator | None] = Field(None, examples=Operator.list())
+    opt: Optional[Union[Operator, None]] = Field(None, examples=Operator.list())
 
 
 class OrderSchemas(BaseModel):
@@ -46,11 +46,11 @@ class OrderedSearchSchemas(SearchSchemas, OrderSchemas): ...
 
 
 class MultiFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
-    filters: Optional[list[SearchSchemas] | None] = Field(None)
+    filters: Optional[list[SearchSchemas]] = Field(None)
 
 
 class DynamicFilterSchemas(PaginationSchemas, TimeframeSchemas, OrderSchemas):
-    filters: Optional[dict[FilterOption, list[SearchSchemas] | None]] = Field(None)
+    filters: Optional[dict[FilterOption, list[SearchSchemas]]] = Field(None)
 
 
 class BaseFilterSchemas(
@@ -66,144 +66,148 @@ class MongoQueryBuilder(ChainQuery[_QueryType]):
         self, filters: list[SearchSchemas]
     ) -> "MongoQueryBuilder[_QueryType]":
         for filter_query in filters:
-            match (filter_query.opt):
-                case Operator.unequal:
-                    self.must({filter_query.field: {"$ne": filter_query.value}})
-                case Operator.include:
-                    self.must({filter_query.field: {"$in": filter_query.value}})
-                case Operator.exclude:
-                    self.must({filter_query.field: {"$nin": filter_query.value}})
-                case Operator.gt:
-                    self.must({filter_query.field: {"$gt": filter_query.value}})
-                case Operator.gte:
-                    self.must({filter_query.field: {"$gte": filter_query.value}})
-                case Operator.lt:
-                    self.must({filter_query.field: {"$lt": filter_query.value}})
-                case Operator.lte:
-                    self.must({filter_query.field: {"$lte": filter_query.value}})
-                case Operator.exist:
-                    self.must({filter_query.field: {"$exist": 1}})
-                case Operator.not_exist:
-                    self.must({filter_query.field: {"$exist": 0}})
-                case Operator.regex:
-                    self.must(
-                        {
-                            filter_query.field: {
-                                "$regex": filter_query.value,
-                                "$options": "i",
-                            }
+            if filter_query.opt == Operator.equal:
+                self.must({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.unequal:
+                self.must({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.include:
+                self.must({filter_query.field: {"$in": filter_query.value}})
+            elif filter_query.opt == Operator.exclude:
+                self.must({filter_query.field: {"$nin": filter_query.value}})
+            elif filter_query.opt == Operator.gt:
+                self.must({filter_query.field: {"$gt": filter_query.value}})
+            elif filter_query.opt == Operator.gte:
+                self.must({filter_query.field: {"$gte": filter_query.value}})
+            elif filter_query.opt == Operator.lt:
+                self.must({filter_query.field: {"$lt": filter_query.value}})
+            elif filter_query.opt == Operator.lte:
+                self.must({filter_query.field: {"$lte": filter_query.value}})
+            elif filter_query.opt == Operator.exist:
+                self.must({filter_query.field: {"$exist": 1}})
+            elif filter_query.opt == Operator.not_exist:
+                self.must({filter_query.field: {"$exist": 0}})
+            elif filter_query.opt == Operator.regex:
+                self.must(
+                    {
+                        filter_query.field: {
+                            "$regex": filter_query.value,
+                            "$options": "i",
                         }
-                    )
-                case _:
-                    self.must({filter_query.field: filter_query.value})
+                    }
+                )
+            else:
+                self.must({filter_query.field: filter_query.value})
         return self
 
     def extract_query_mustnt(
         self, filters: list[SearchSchemas]
     ) -> "MongoQueryBuilder[_QueryType]":
         for filter_query in filters:
-            match (filter_query.opt):
-                case Operator.unequal:
-                    self.mustnt({filter_query.field: {"$ne": filter_query.value}})
-                case Operator.include:
-                    self.mustnt({filter_query.field: {"$in": filter_query.value}})
-                case Operator.exclude:
-                    self.mustnt({filter_query.field: {"$nin": filter_query.value}})
-                case Operator.gt:
-                    self.mustnt({filter_query.field: {"$gt": filter_query.value}})
-                case Operator.gte:
-                    self.mustnt({filter_query.field: {"$gte": filter_query.value}})
-                case Operator.lt:
-                    self.mustnt({filter_query.field: {"$lt": filter_query.value}})
-                case Operator.lte:
-                    self.mustnt({filter_query.field: {"$lte": filter_query.value}})
-                case Operator.exist:
-                    self.mustnt({filter_query.field: {"$exist": 1}})
-                case Operator.not_exist:
-                    self.mustnt({filter_query.field: {"$exist": 0}})
-                case Operator.regex:
-                    self.mustnt(
-                        {
-                            filter_query.field: {
-                                "$regex": filter_query.value,
-                                "$options": "i",
-                            }
+            if filter_query.opt == Operator.equal:
+                self.mustnt({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.unequal:
+                self.mustnt({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.include:
+                self.mustnt({filter_query.field: {"$in": filter_query.value}})
+            elif filter_query.opt == Operator.exclude:
+                self.mustnt({filter_query.field: {"$nin": filter_query.value}})
+            elif filter_query.opt == Operator.gt:
+                self.mustnt({filter_query.field: {"$gt": filter_query.value}})
+            elif filter_query.opt == Operator.gte:
+                self.mustnt({filter_query.field: {"$gte": filter_query.value}})
+            elif filter_query.opt == Operator.lt:
+                self.mustnt({filter_query.field: {"$lt": filter_query.value}})
+            elif filter_query.opt == Operator.lte:
+                self.mustnt({filter_query.field: {"$lte": filter_query.value}})
+            elif filter_query.opt == Operator.exist:
+                self.mustnt({filter_query.field: {"$exist": 1}})
+            elif filter_query.opt == Operator.not_exist:
+                self.mustnt({filter_query.field: {"$exist": 0}})
+            elif filter_query.opt == Operator.regex:
+                self.mustnt(
+                    {
+                        filter_query.field: {
+                            "$regex": filter_query.value,
+                            "$options": "i",
                         }
-                    )
-                case _:
-                    self.mustnt({filter_query.field: filter_query.value})
+                    }
+                )
+            else:
+                self.mustnt({filter_query.field: filter_query.value})
         return self
 
     def extract_query_should(
         self, filters: list[SearchSchemas]
     ) -> "MongoQueryBuilder[_QueryType]":
         for filter_query in filters:
-            match (filter_query.opt):
-                case Operator.unequal:
-                    self.should({filter_query.field: {"$ne": filter_query.value}})
-                case Operator.include:
-                    self.should({filter_query.field: {"$in": filter_query.value}})
-                case Operator.exclude:
-                    self.should({filter_query.field: {"$nin": filter_query.value}})
-                case Operator.gt:
-                    self.should({filter_query.field: {"$gt": filter_query.value}})
-                case Operator.gte:
-                    self.should({filter_query.field: {"$gte": filter_query.value}})
-                case Operator.lt:
-                    self.should({filter_query.field: {"$lt": filter_query.value}})
-                case Operator.lte:
-                    self.should({filter_query.field: {"$lte": filter_query.value}})
-                case Operator.exist:
-                    self.should({filter_query.field: {"$exist": 1}})
-                case Operator.not_exist:
-                    self.should({filter_query.field: {"$exist": 0}})
-                case Operator.regex:
-                    self.should(
-                        {
-                            filter_query.field: {
-                                "$regex": filter_query.value,
-                                "$options": "i",
-                            }
+            if filter_query.opt == Operator.equal:
+                self.should({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.unequal:
+                self.should({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.include:
+                self.should({filter_query.field: {"$in": filter_query.value}})
+            elif filter_query.opt == Operator.exclude:
+                self.should({filter_query.field: {"$nin": filter_query.value}})
+            elif filter_query.opt == Operator.gt:
+                self.should({filter_query.field: {"$gt": filter_query.value}})
+            elif filter_query.opt == Operator.gte:
+                self.should({filter_query.field: {"$gte": filter_query.value}})
+            elif filter_query.opt == Operator.lt:
+                self.should({filter_query.field: {"$lt": filter_query.value}})
+            elif filter_query.opt == Operator.lte:
+                self.should({filter_query.field: {"$lte": filter_query.value}})
+            elif filter_query.opt == Operator.exist:
+                self.should({filter_query.field: {"$exist": 1}})
+            elif filter_query.opt == Operator.not_exist:
+                self.should({filter_query.field: {"$exist": 0}})
+            elif filter_query.opt == Operator.regex:
+                self.should(
+                    {
+                        filter_query.field: {
+                            "$regex": filter_query.value,
+                            "$options": "i",
                         }
-                    )
-                case _:
-                    self.should({filter_query.field: filter_query.value})
+                    }
+                )
+            else:
+                self.should({filter_query.field: filter_query.value})
         return self
 
     def extract_query_shouldnt(
         self, filters: list[SearchSchemas]
     ) -> "MongoQueryBuilder[_QueryType]":
         for filter_query in filters:
-            match (filter_query.opt):
-                case Operator.unequal:
-                    self.shouldnt({filter_query.field: {"$ne": filter_query.value}})
-                case Operator.include:
-                    self.shouldnt({filter_query.field: {"$in": filter_query.value}})
-                case Operator.exclude:
-                    self.shouldnt({filter_query.field: {"$nin": filter_query.value}})
-                case Operator.gt:
-                    self.shouldnt({filter_query.field: {"$gt": filter_query.value}})
-                case Operator.gte:
-                    self.shouldnt({filter_query.field: {"$gte": filter_query.value}})
-                case Operator.lt:
-                    self.shouldnt({filter_query.field: {"$lt": filter_query.value}})
-                case Operator.lte:
-                    self.shouldnt({filter_query.field: {"$lte": filter_query.value}})
-                case Operator.exist:
-                    self.shouldnt({filter_query.field: {"$exist": 1}})
-                case Operator.not_exist:
-                    self.shouldnt({filter_query.field: {"$exist": 0}})
-                case Operator.regex:
-                    self.shouldnt(
-                        {
-                            filter_query.field: {
-                                "$regex": filter_query.value,
-                                "$options": "i",
-                            }
+            if filter_query.opt == Operator.equal:
+                self.shouldnt({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.unequal:
+                self.shouldnt({filter_query.field: filter_query.value})
+            elif filter_query.opt == Operator.include:
+                self.shouldnt({filter_query.field: {"$in": filter_query.value}})
+            elif filter_query.opt == Operator.exclude:
+                self.shouldnt({filter_query.field: {"$nin": filter_query.value}})
+            elif filter_query.opt == Operator.gt:
+                self.shouldnt({filter_query.field: {"$gt": filter_query.value}})
+            elif filter_query.opt == Operator.gte:
+                self.shouldnt({filter_query.field: {"$gte": filter_query.value}})
+            elif filter_query.opt == Operator.lt:
+                self.shouldnt({filter_query.field: {"$lt": filter_query.value}})
+            elif filter_query.opt == Operator.lte:
+                self.shouldnt({filter_query.field: {"$lte": filter_query.value}})
+            elif filter_query.opt == Operator.exist:
+                self.shouldnt({filter_query.field: {"$exist": 1}})
+            elif filter_query.opt == Operator.not_exist:
+                self.shouldnt({filter_query.field: {"$exist": 0}})
+            elif filter_query.opt == Operator.regex:
+                self.shouldnt(
+                    {
+                        filter_query.field: {
+                            "$regex": filter_query.value,
+                            "$options": "i",
                         }
-                    )
-                case _:
-                    self.shouldnt({filter_query.field: filter_query.value})
+                    }
+                )
+            else:
+                self.shouldnt({filter_query.field: filter_query.value})
         return self
 
     def extract_timeframe(
