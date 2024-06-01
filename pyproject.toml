@@ -1,23 +1,20 @@
 [tool.poetry]
 name = "module-typica"
-version = "0.1.11"
+version = "0.1.12"
 description = "Standard Pydantic usages & utilities"
 authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "Readme.md"
 packages = [{include = "typica"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 pydantic = "^2.7.2"
-pytz = "^2024.1"
 deprecated = "^1.2.14"
 loguru = "^0.7.2"
+pytz = "^2024.1"
 
 [tool.poetry.group.dev.dependencies]
-# pytest = "^7.4.2"
-# mkdocs-material = "^9.5.24"
-pytest = "^8.2.1"
-mkdocs-material = "^9.5.25"
+pymongo = "^4.7.2"
 faker = "^25.3.0"
 
 [build-system]

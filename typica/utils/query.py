@@ -1,17 +1,17 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Generic, TypeVar, Mapping, Optional, Any
+from typing import Generic, TypeVar, Mapping, Optional, Any, List, Dict
 
 
 class BaseQuery(BaseModel):
-    andOpt: Optional[list[Mapping[str, Any]]] = Field([], description="Must query")
-    notOpt: Optional[list[Mapping[str, Any]]] = Field([], description="Must'nt query")
-    orOpt: Optional[list[Mapping[str, Any]]] = Field([], description="Should query")
-    norOpt: Optional[list[Mapping[str, Any]]] = Field([], description="Shouldnt query")
+    andOpt: Optional[List[Mapping[str, Any]]] = Field([], description="Must query")
+    notOpt: Optional[List[Mapping[str, Any]]] = Field([], description="Must'nt query")
+    orOpt: Optional[List[Mapping[str, Any]]] = Field([], description="Should query")
+    norOpt: Optional[List[Mapping[str, Any]]] = Field([], description="Shouldnt query")
 
     model_config = ConfigDict(extra="allow")
 
     @property
-    def other_query(self) -> dict[str, Any]:
+    def other_query(self) -> Dict[str, Any]:
         return self.model_dump(
             by_alias=True,
             exclude_none=True,
@@ -47,7 +47,7 @@ class ChainQuery(Generic[_QueryType]):
         return self
 
     @property
-    def query_json(self) -> dict[str, Any]:
+    def query_json(self) -> Dict[str, Any]:
         return self.query.model_dump(
             by_alias=True, exclude_none=True, exclude_defaults=True
         )

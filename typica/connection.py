@@ -1,7 +1,7 @@
 import re
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, TypeVar
+from typing import Optional, Union, TypeVar, List
 
 from deprecated import deprecated
 from pydantic import BaseModel, Field, model_validator
@@ -27,7 +27,7 @@ class ConnectionMeta(HostMeta):
     username: Optional[str] = Field(None)
     password: Optional[str] = Field(None)
     database: Optional[Union[str, int]] = Field(None, description="Database name")
-    clustersUri: Optional[list[HostMeta]] = Field(None)
+    clustersUri: Optional[List[HostMeta]] = Field(None)
 
     def uri_string(self, base: str = "http", with_db: bool = True) -> str:
         meta = ""
@@ -83,7 +83,7 @@ class QueueConnectionMeta(HostMeta):
 
     username: Optional[str] = Field(None)
     password: Optional[str] = Field(None)
-    clustersUri: Optional[list[HostMeta]] = Field(None)
+    clustersUri: Optional[List[HostMeta]] = Field(None)
     uri: Optional[str] = Field("", description="")
 
     @model_validator(mode="after")
@@ -216,7 +216,7 @@ class DatabaseConnector(BaseConnector):
         pass
 
     @abstractmethod
-    def bulk_insert_data(self, table: str, data: list[any], **kwargs):
+    def bulk_insert_data(self, table: str, data: List[any], **kwargs):
         pass
 
     @abstractmethod
