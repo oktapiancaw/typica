@@ -200,27 +200,31 @@ class DatabaseConnector(BaseConnector):
         pass
 
     @abstractmethod
-    def get_data(self, table: str, query: any, **kwargs):
+    def get(self, table: str, query: any, **kwargs):
         pass
 
     @abstractmethod
-    def insert_data(self, table: str, data: any, **kwargs):
+    def get_all(self, table: str, query: any, **kwargs):
         pass
 
     @abstractmethod
-    def update_data(self, table: str, query: any, data: any, **kwargs):
+    def insert(self, table: str, data: any, **kwargs):
         pass
 
     @abstractmethod
-    def delete_data(self, table: str, query: any, **kwargs):
+    def insert_many(self, table: str, data: List[any], **kwargs):
         pass
 
     @abstractmethod
-    def bulk_insert_data(self, table: str, data: List[any], **kwargs):
+    def update(self, table: str, query: any, data: any, **kwargs):
         pass
 
     @abstractmethod
-    def scan_data(self, table: str, query: any, **kwargs):
+    def delete(self, table: str, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def close(self):
         pass
 
 
@@ -235,4 +239,12 @@ class QueueConnector(BaseConnector):
 
     @abstractmethod
     def producer_connect(self, queue: str, **kwargs):
+        pass
+
+    @abstractmethod
+    def consumer_close(self):
+        pass
+
+    @abstractmethod
+    def producer_close(self):
         pass
