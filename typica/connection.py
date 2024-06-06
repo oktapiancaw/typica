@@ -190,6 +190,10 @@ class BaseConnector(ABC):
         pass
 
 
+@deprecated(
+    version="0.1.14",
+    reason="Now databaseConnector split into SQLConnector and NoSQLConnector",
+)
 class DatabaseConnector(BaseConnector):
     def __init__(self, meta: database_meta_type) -> None:
         self._meta: database_meta_type = meta
@@ -221,6 +225,66 @@ class DatabaseConnector(BaseConnector):
 
     @abstractmethod
     def delete(self, table: str, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def close(self):
+        pass
+
+
+class NosqlConnector(BaseConnector):
+    def __init__(self, meta: database_meta_type) -> None:
+        self._meta: database_meta_type = meta
+        pass
+
+    @abstractmethod
+    def connect(self, **kwargs):
+        pass
+
+    @abstractmethod
+    def get(self, dataset: str, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def get_all(self, dataset: str, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def insert(self, dataset: str, data: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def insert_many(self, dataset: str, data: List[any], **kwargs):
+        pass
+
+    @abstractmethod
+    def update(self, dataset: str, query: any, data: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def delete(self, dataset: str, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def close(self):
+        pass
+
+
+class SQLConnector(BaseConnector):
+    def __init__(self, meta: database_meta_type) -> None:
+        self._meta: database_meta_type = meta
+        pass
+
+    @abstractmethod
+    def connect(self, **kwargs):
+        pass
+
+    @abstractmethod
+    def get(self, query: any, **kwargs):
+        pass
+
+    @abstractmethod
+    def get_all(self, query: any, **kwargs):
         pass
 
     @abstractmethod
