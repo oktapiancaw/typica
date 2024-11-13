@@ -13,19 +13,13 @@ class EnumV3(EnumV2):
         obj._value_ = args[0]
         return obj
 
-    def __init__(self, value, description: str = None):
+    def __init__(self, value, description: str | None = None):
         self._value_ = value
         self._description_ = description
 
     @property
     def description(self):
         return self._description_
-
-
-class Order(EnumV3):
-    ascending = ("ASC", "sorted ascending")
-    descending = ("DESC", "sorted descending")
-
 
 class Operator(EnumV3):
     equal = ("eq", "value is equals to")
@@ -47,33 +41,21 @@ class FilterOption(EnumV3):
     should = ("should", "List of filter should exact")
     shouldnt = ("shouldnt", "List of filter shouldn't exact")
 
-
-class DataStatus(str, EnumV2):
-    """
-    Default status of data
-    """
-
-    active = "active"
-    archive = "archive"
-    deleted = "deleted"
-    success = "success"
-    failed = "failed"
-    published = "published"
-    unpublished = "unpublished"
+class LocationLevel(str, EnumV3):
+    CONTINENT = ("continent", "Continent level data")
+    COUNTRY = ("country", "Country level data")
+    PROVINCE = ("province", "Province level data")
+    CITY = ("city", "City level data")
+    DISTRICT = ("district", "District level data")
+    SUBDISTRICT = ("subdistrict", "Subdistrict level data")
 
 
-class ConnectionTypes(str, EnumV2):
-    """
-    Connection types supported on ConnectionUriMeta
-    """
-
-    clickhouse = "clickhouse"
-    elastic = "elasticsearch"
-    mongo = "mongo"
-    postgre = "postgresql"
-    mysql = "mysql"
-    redis = "redis"
-    s3aws = "s3aws"
+class MedallionTypes(str, EnumV3):
+    LAKE = ("lake", 'Lake data')
+    BRONZE = ("bronze", 'bronze level Medallion')
+    SILVER = ("silver", 'silver level Medallion')
+    GOLD = ("gold", 'gold level Medallion')
+    OTHER = ("other", 'other than any level Medallion')
 
 
 class ResponseMessage(str, EnumV2):
@@ -87,28 +69,3 @@ class ResponseMessage(str, EnumV2):
     update = "Updated"
     delete = "Deleted"
     archive = "Archived"
-
-
-class ErrorResponseMessage(str, EnumV2):
-    """
-    Base error response service
-    """
-
-    # * base
-    alreadyExist = "is already exist"
-    isNotExist = "isn't exist"
-    isInvalid = "is invalid"
-    notFound = "isn't found"
-    expired = "is expired"
-
-    # * with sub/ob-ject
-    dataAlreadyExist = "Data is already exist"
-    dataIsNotExist = "Data isn't exist"
-    dataIsInvalid = "Data is invalid"
-    dataNotFound = "Data isn't found"
-    tokenExpired = "Token is expired"
-
-    # * others
-    forbidden = "Forbidden access"
-    unAuthz = "Unathorized"
-    wentWrong = "Service error, please tell admin"

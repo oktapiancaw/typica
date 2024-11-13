@@ -1,60 +1,49 @@
 import re
+from typing import Optional, Any
 
-from abc import ABC, abstractmethod
-from typing import Optional, Union, TypeVar, List
-
-from deprecated import deprecated
 from pydantic import BaseModel, Field, model_validator
 
-from .utils import ConnectionTypes
-
-connectionType = TypeVar("connectionType", ConnectionTypes, str, None)
 
 
-class HostMeta(BaseModel):
+class EndpointMeta(BaseModel):
     host: Optional[str] = Field("localhost", description="Connection host")
-    port: Optional[int] = Field(8000, description="Connection port")
+    port: Optional[str | int] = Field(8000, description="Connection port")
+
+    # @model_validator(mode="before")
+    # def validate_uri(cls, values: dict[str, Any]):
+    #     if isinstance(values.get("port"), str):
+    #         values["port"] = int(values["port"])
+    #     return values
 
 
-@deprecated(
-    version="0.1.11", reason="use DatabaseConnectionMeta or QueueConnectionMeta instead"
-)
-class ConnectionMeta(HostMeta):
-    """
-    Base connection metadata model
-    """
+class AuthMeta(BaseModel):
+    username: Optional[str] = Field(None, description="Database username")
+    password: Optional[str] = Field(None, description="Database password")
 
-    username: Optional[str] = Field(None)
-    password: Optional[str] = Field(None)
-    database: Optional[Union[str, int]] = Field(None, description="Database name")
-    clustersUri: Optional[List[HostMeta]] = Field(None)
+
+class URIConnectionMeta(BaseModel):
+    uri: Optional[str] = Field("", description="Database connection URI")
+
+
+class DBConnectionMeta(EndpointMeta, AuthMeta, URIConnectionMeta):
+    database: Optional[str] = Field(None, description="Database name")
+
 
     def uri_string(self, base: str = "http", with_db: bool = True) -> str:
-        meta = ""
-        if self.clustersUri:
-            temp = []
-            for cluster in self.clustersUri:
-                temp.append(f"{cluster.host}:{cluster.port}")
-            meta = ",".join(temp)
-        else:
+        """
+        Return a URI string for the database connection.
+
+        :param base: The base of the URI (e.g. "http", "postgresql", etc.).
+        :param with_db: Whether to include the database name in the URI.
+        :return: A string representing the URI.
+        """
+        if self.host:
             meta = f"{self.host}:{self.port}"
-        if self.username:
-            return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
-        return f"{base}://{meta}/{self.database if with_db else ''}"
+            if self.username:
+                return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
+            return f"{base}://{meta}/{self.database if with_db else ''}"
+        return ""
 
-
-class DatabaseConnectionMeta(HostMeta):
-
-    username: Optional[str] = Field(None)
-    password: Optional[str] = Field(None)
-    database: Optional[Union[str, int]] = Field(None, description="Database name")
-    uri: Optional[str] = Field("", description="")
-
-    def uri_string(self, base: str = "http", with_db: bool = True) -> str:
-        meta = f"{self.host}:{self.port}"
-        if self.username:
-            return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
-        return f"{base}://{meta}/{self.database if with_db else ''}"
 
     @model_validator(mode="after")
     def extract_uri(self):
@@ -75,16 +64,29 @@ class DatabaseConnectionMeta(HostMeta):
                 )
             else:
                 self.host, self.port = re.split(r"\:", metadata)
-            self.port = int(self.port)
+            if self.port:
+                self.port = int(self.port)
         return self
 
+class ClusterConnectionMeta(AuthMeta, URIConnectionMeta):
+    cluster_uri: Optional[list[EndpointMeta]]  = Field([], description="List of clusters endpoint")
+    database: Optional[str] = Field(None, description="Database name")
 
-class QueueConnectionMeta(HostMeta):
+    def uri_string(self, base: str = "http", with_db: bool = True) -> str:
+        """
+        Return a URI string for the database connection.
 
-    username: Optional[str] = Field(None)
-    password: Optional[str] = Field(None)
-    clustersUri: Optional[List[HostMeta]] = Field(None)
-    uri: Optional[str] = Field("", description="")
+        :param base: The base of the URI (e.g. "http", "postgresql", etc.).
+        :param with_db: Whether to include the database name in the URI.
+        :return: A string representing the URI.
+        """
+        if self.cluster_uri:
+            meta = ",".join([f"{c.host}:{c.port}" for c in self.cluster_uri])
+            if self.username:
+                return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
+            return f"{base}://{meta}/{self.database if with_db else ''}"
+        return ""
+    
 
     @model_validator(mode="after")
     def extract_uri(self):
@@ -103,212 +105,33 @@ class QueueConnectionMeta(HostMeta):
                 if "," in metadata:
                     metadata, raw_clusters = re.split(r"\@", metadata)
                     self.username, self.password = re.split(r"\:", metadata)
-                    clustersUri = []
+                    cluster_uri = []
                     for cluster in raw_clusters.split(","):
                         hostData = re.split(r"\:", cluster)
-                        clustersUri.append(HostMeta(host=hostData[0], port=hostData[1]))
-                    self.clustersUri = clustersUri
+                        cluster_uri.append(EndpointMeta(host=hostData[0], port=int(hostData[1])))
+                    self.cluster_uri = cluster_uri
                 else:
                     self.username, self.password, self.host, self.port = re.split(
                         r"\@|\:", metadata
                     )
             else:
                 self.host, self.port = re.split(r"\:", metadata)
-            self.port = int(self.port)
+            if self.port:
+                self.port = int(self.port)
         return self
 
 
-database_meta_type = TypeVar("database_meta_type", DatabaseConnectionMeta, HostMeta)
-queue_meta_type = TypeVar("queue_meta_type", DatabaseConnectionMeta, HostMeta)
+class S3ConnectionMeta(EndpointMeta):
+    access_key: Optional[str] = Field(None, description="S3 access key")
+    secret_key: Optional[str] = Field(None, description="S3 secret key")
+    bucket: str = Field(..., description="S3 bucket name")
+    base_path: Optional[str] = Field("/", description="S3 base path")
 
 
-@deprecated(
-    version="0.1.11", reason="use DatabaseConnectionMeta or QueueConnectionMeta instead"
-)
-class ConnectionUriMeta(ConnectionMeta):
-    """Connection with URI and connection types metadata model
-
-    Args:
-        ConnectionMeta (BaseModel): Base connection metadata model
-
-    Returns:
-        ConnectionMeta: parsed connection metadata from URI
-    """
-
-    uri: Optional[str] = Field("", description="")
-    type_connection: Optional[connectionType] = Field(
-        None, examples=ConnectionTypes.list()
-    )
-
-    @model_validator(mode="after")
-    def extract_uri(self):
-        if self.uri:
-            uri = re.sub(r"\w+:(//|/)", "", self.uri)
-            metadata, others = (
-                re.split(r"\/\?|\/", uri) if re.search(r"\/\?|\/", uri) else [uri, None]
-            )
-            if others and "&" in others:
-                for other in others.split("&"):
-                    if "=" in other and re.search(r"authSource", other):
-                        self.database = other.split("=")[-1]
-                    elif "=" not in other:
-                        self.database = other
-            if "@" in metadata:
-                if "," in metadata:
-                    metadata, raw_clusters = re.split(r"\@", metadata)
-                    self.username, self.password = re.split(r"\:", metadata)
-                    clustersUri = []
-                    for cluster in raw_clusters.split(","):
-                        hostData = re.split(r"\:", cluster)
-                        clustersUri.append(HostMeta(host=hostData[0], port=hostData[1]))
-                    self.clustersUri = clustersUri
-                else:
-                    self.username, self.password, self.host, self.port = re.split(
-                        r"\@|\:", metadata
-                    )
-            else:
-                self.host, self.port = re.split(r"\:", metadata)
-            self.port = int(self.port)
-        return self
-
-
-connectionPayload = TypeVar("connectionPayload", ConnectionMeta, ConnectionUriMeta)
-
-
-@deprecated(version="0.1.11", reason="use DatabaseConnector or QueueConnector instead")
-class BaseConnection(ABC):
-    def __init__(self, metadata: connectionPayload) -> None:
-        self._metadata = metadata
-
-    @abstractmethod
-    def close(self) -> None:
-        pass
-
-
-class BaseConnector(ABC):
-    def __init__(self) -> None:
-        pass
-
-
-@deprecated(
-    version="0.1.14",
-    reason="Now databaseConnector split into SQLConnector and NoSQLConnector",
-)
-class DatabaseConnector(BaseConnector):
-    def __init__(self, meta: database_meta_type) -> None:
-        self._meta: database_meta_type = meta
-        pass
-
-    @abstractmethod
-    def connect(self, **kwargs):
-        pass
-
-    @abstractmethod
-    def get(self, table: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def get_all(self, table: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def insert(self, table: str, data: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def insert_many(self, table: str, data: List[any], **kwargs):
-        pass
-
-    @abstractmethod
-    def update(self, table: str, query: any, data: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def delete(self, table: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def close(self):
-        pass
-
-
-class NosqlConnector(BaseConnector):
-    def __init__(self, meta: database_meta_type) -> None:
-        self._meta: database_meta_type = meta
-        pass
-
-    @abstractmethod
-    def connect(self, **kwargs):
-        pass
-
-    @abstractmethod
-    def get(self, dataset: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def get_all(self, dataset: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def insert(self, dataset: str, data: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def insert_many(self, dataset: str, data: List[any], **kwargs):
-        pass
-
-    @abstractmethod
-    def update(self, dataset: str, query: any, data: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def delete(self, dataset: str, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def close(self):
-        pass
-
-
-class SQLConnector(BaseConnector):
-    def __init__(self, meta: database_meta_type) -> None:
-        self._meta: database_meta_type = meta
-        pass
-
-    @abstractmethod
-    def connect(self, **kwargs):
-        pass
-
-    @abstractmethod
-    def get(self, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def get_all(self, query: any, **kwargs):
-        pass
-
-    @abstractmethod
-    def close(self):
-        pass
-
-
-class QueueConnector(BaseConnector):
-    def __init__(self, meta: queue_meta_type) -> None:
-        self._meta: queue_meta_type = meta
-        pass
-
-    @abstractmethod
-    def consumer_connect(self, queue: str, **kwargs):
-        pass
-
-    @abstractmethod
-    def producer_connect(self, queue: str, **kwargs):
-        pass
-
-    @abstractmethod
-    def consumer_close(self):
-        pass
-
-    @abstractmethod
-    def producer_close(self):
-        pass
+    @property
+    def json_meta(self) -> dict:
+        return {
+            "endpoint_url": f"http://{self.host}:{self.port}",
+            "key": self.access_key,
+            "secret": self.secret_key,
+        }
