@@ -1,11 +1,10 @@
-import re
 
 from typing import Optional
 
-from pydantic import BaseModel, RootModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from .utils import MedallionTypes, LocationLevel
-from .connection import DBConnectionMeta, S3ConnectionMeta, EndpointMeta, ClusterConnectionMeta
+from .connection import DBConnectionMeta, S3ConnectionMeta, ClusterConnectionMeta
 
 
 class SchemaMeta(BaseModel):
