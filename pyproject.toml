@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "module-typica"
-version = "0.2.0"
+version = "0.2.2"
 description = "Standard Pydantic usages & utilities"
 authors = ["Oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "Readme.md"

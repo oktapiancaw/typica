@@ -20,6 +20,16 @@ class ServiceResponse:
         self.auth = auth
 
     def basic(self, route: str) -> dict:
+        """
+        Generate a basic response, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 400 Bad Request
+        - 500 Internal Server Error
+
+        :param route: The path of the route
+        :return: A dictionary of common response codes and models
+        """
         return {
             400: {
                 "model": create_model(
@@ -38,6 +48,20 @@ class ServiceResponse:
         }
 
     def get(self, route: str, model: Any = None, obj: str = "Data", auth: bool = False, exclude_codes: list = [], **kwargs) -> dict:
+        """
+        Generate a response for a get request, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 200 Success
+        - 404 Not Found
+
+        :param route: The path of the route
+        :param model: The model to use for the response
+        :param obj: The object name to use for the response
+        :param auth: Whether or not the route requires authentication
+        :param exclude_codes: A list of codes to exclude from the response
+        :return: A dictionary of common response codes and models
+        """
         response: dict = {
             200: {
                 "model": create_model(
@@ -74,6 +98,21 @@ class ServiceResponse:
 
 
     def pagination(self, route: str, model: Any = None, obj: str = "Data", auth: bool = False, exclude_codes: list = [], **kwargs) -> dict:
+        """
+        Generate a pagination response, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 200 OK
+        - 404 Not Found
+        - 401 Unauthorized (optional)
+
+        :param route: The path of the route
+        :param model: The model to use for the response
+        :param obj: The object to be gotten
+        :param auth: Whether or not the route requires authentication
+        :param exclude_codes: A list of codes to exclude from the response
+        :return: A dictionary of common response codes and models
+        """
         response: dict = {
             200: {
                 "model": create_model(
@@ -110,6 +149,20 @@ class ServiceResponse:
         return response
 
     def creation(self, route: str, model: Any = None, obj: str = "Data", auth: bool = False, exclude_codes: list = [], **kwargs) -> dict:
+        """
+        Generate a response for a create request, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 201 Created
+        - 401 Unauthorized
+
+        :param route: The path of the route
+        :param model: The model to use for the response
+        :param obj: The object name to use for the response
+        :param auth: Whether or not the route requires authentication
+        :param exclude_codes: A list of codes to exclude from the response
+        :return: A dictionary of common response codes and models
+        """
         response: dict =  {
             201: {
                 "model": create_model(
@@ -138,6 +191,21 @@ class ServiceResponse:
         return response
 
     def update(self, route: str, model: Any = None, obj: str = "Data", auth: bool = False, exclude_codes: list = [], **kwargs) -> dict:
+        """
+        Generate a response for a update request, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 200 OK
+        - 204 No Content
+        - 401 Unauthorized (optional)
+
+        :param route: The path of the route
+        :param model: The model to use for the response
+        :param obj: The object name to use for the response
+        :param auth: Whether or not the route requires authentication
+        :param exclude_codes: A list of codes to exclude from the response
+        :return: A dictionary of common response codes and models
+        """
         response: dict =  {
             200: {
                 "model": create_model(
@@ -173,6 +241,23 @@ class ServiceResponse:
         return response
 
     def delete(self, route: str, model: Any = None, obj: str = "Data", auth: bool = False, exclude_codes: list = [], **kwargs) -> dict:
+        """
+        Generate a response for a delete request, which is a dictionary of common response codes and models.
+
+        Contains:
+        - 200 Success
+        - 204 Success
+        - 400 Bad Request
+        - 401 Unauthorized (optional)
+        - 500 Internal Server Error
+
+        :param route: The path of the route
+        :param model: The model to use for the response
+        :param obj: The object name to use for the response
+        :param auth: Whether or not the route requires authentication
+        :param exclude_codes: A list of codes to exclude from the response
+        :return: A dictionary of common response codes and models
+        """
         response: dict =  {
             200: {
                 "model": create_model(

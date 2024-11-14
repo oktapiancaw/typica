@@ -19,6 +19,10 @@ class UUIDIdentifier(BaseModel):
 
     @model_validator(mode="before")
     def validate_uuid(cls, values):
+        """
+        Validate if id is str, then convert to uuid.UUID
+        """
+        
         if isinstance(values.get("id"), str):
             values["id"] = uuid.UUID(values["id"])
         return values
@@ -29,6 +33,9 @@ class UUIDIdentifier_(BaseModel):
 
     @model_validator(mode="before")
     def validate_uuid(cls, values):
+        """
+        Validate if _id is str, then convert to uuid.UUID
+        """
         if isinstance(values.get("_id"), str):
             values["_id"] = uuid.UUID(values["_id"])
         return values
@@ -42,6 +49,11 @@ class CreationMeta(BaseModel):
 
     @model_validator(mode="before")
     def validate_created_at(cls, values):
+        """
+        Validate if created_at is str, then convert to datetime
+        If created_at is int, then convert to datetime using fromtimestamp
+        If created_at is int and length is more than 10, then divide by 1000 first
+        """
         if isinstance(values.get("created_at"), str):
             values["created_at"] = datetime.fromisoformat(values["created_at"])
         if isinstance(values.get("created_at"), int):

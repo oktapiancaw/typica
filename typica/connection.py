@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Any
+from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -9,11 +9,6 @@ class EndpointMeta(BaseModel):
     host: Optional[str] = Field("localhost", description="Connection host")
     port: Optional[str | int] = Field(8000, description="Connection port")
 
-    # @model_validator(mode="before")
-    # def validate_uri(cls, values: dict[str, Any]):
-    #     if isinstance(values.get("port"), str):
-    #         values["port"] = int(values["port"])
-    #     return values
 
 
 class AuthMeta(BaseModel):
@@ -130,6 +125,11 @@ class S3ConnectionMeta(EndpointMeta):
 
     @property
     def json_meta(self) -> dict:
+        """
+        Return a dictionary of metadata for connecting to S3.
+
+        :return: A dictionary with the endpoint_url, access_key, and secret_key.
+        """
         return {
             "endpoint_url": f"http://{self.host}:{self.port}",
             "key": self.access_key,
