@@ -4,11 +4,9 @@ from typing import Optional
 from pydantic import BaseModel, Field, model_validator
 
 
-
 class EndpointMeta(BaseModel):
     host: Optional[str] = Field("localhost", description="Connection host")
     port: Optional[str | int] = Field(8000, description="Connection port")
-
 
 
 class AuthMeta(BaseModel):
@@ -22,7 +20,6 @@ class URIConnectionMeta(BaseModel):
 
 class DBConnectionMeta(EndpointMeta, AuthMeta, URIConnectionMeta):
     database: Optional[str] = Field(None, description="Database name")
-
 
     def uri_string(self, base: str = "http", with_db: bool = True) -> str:
         """
@@ -38,7 +35,6 @@ class DBConnectionMeta(EndpointMeta, AuthMeta, URIConnectionMeta):
                 return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
             return f"{base}://{meta}/{self.database if with_db else ''}"
         return ""
-
 
     @model_validator(mode="after")
     def extract_uri(self):
@@ -63,8 +59,11 @@ class DBConnectionMeta(EndpointMeta, AuthMeta, URIConnectionMeta):
                 self.port = int(self.port)
         return self
 
+
 class ClusterConnectionMeta(AuthMeta, URIConnectionMeta):
-    cluster_uri: Optional[list[EndpointMeta]]  = Field([], description="List of clusters endpoint")
+    cluster_uri: Optional[list[EndpointMeta]] = Field(
+        [], description="List of clusters endpoint"
+    )
     database: Optional[str] = Field(None, description="Database name")
 
     def uri_string(self, base: str = "http", with_db: bool = True) -> str:
@@ -81,7 +80,6 @@ class ClusterConnectionMeta(AuthMeta, URIConnectionMeta):
                 return f"{base}://{self.username}:{self.password}@{meta}/{self.database if with_db else ''}"
             return f"{base}://{meta}/{self.database if with_db else ''}"
         return ""
-    
 
     @model_validator(mode="after")
     def extract_uri(self):
@@ -103,7 +101,9 @@ class ClusterConnectionMeta(AuthMeta, URIConnectionMeta):
                     cluster_uri = []
                     for cluster in raw_clusters.split(","):
                         hostData = re.split(r"\:", cluster)
-                        cluster_uri.append(EndpointMeta(host=hostData[0], port=int(hostData[1])))
+                        cluster_uri.append(
+                            EndpointMeta(host=hostData[0], port=int(hostData[1]))
+                        )
                     self.cluster_uri = cluster_uri
                 else:
                     self.username, self.password, self.host, self.port = re.split(
@@ -122,7 +122,6 @@ class S3ConnectionMeta(EndpointMeta):
     bucket: str = Field(..., description="S3 bucket name")
     base_path: Optional[str] = Field("/", description="S3 base path")
 
-
     @property
     def json_meta(self) -> dict:
         """
@@ -135,3 +134,7 @@ class S3ConnectionMeta(EndpointMeta):
             "key": self.access_key,
             "secret": self.secret_key,
         }
+
+
+class RedisConnectionMeta(EndpointMeta, AuthMeta):
+    database: int = Field(..., description="Database name")
