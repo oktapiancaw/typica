@@ -42,6 +42,7 @@ class EnumV2(Enum):
         """
         return self._description_
 
+
 class Operator(EnumV2):
     equal = ("eq", "value is equals to")
     unequal = ("ne", "value isn't equals to")
@@ -61,9 +62,9 @@ class FilterOption(EnumV2):
     mustnt = ("mustnt", "List of filter mustn't exact")
     should = ("should", "List of filter should exact")
     shouldnt = ("shouldnt", "List of filter shouldn't exact")
-    
 
-class LocationLevel(str, EnumV2):
+
+class LocationLevel(EnumV2):
     CONTINENT = ("continent", "Continent level data")
     COUNTRY = ("country", "Country level data")
     PROVINCE = ("province", "Province level data")
@@ -72,9 +73,9 @@ class LocationLevel(str, EnumV2):
     SUBDISTRICT = ("subdistrict", "Subdistrict level data")
 
 
-class MedallionTypes(str, EnumV2):
-    LAKE = ("lake", 'Lake data')
-    BRONZE = ("bronze", 'bronze level Medallion')
-    SILVER = ("silver", 'silver level Medallion')
-    GOLD = ("gold", 'gold level Medallion')
-    OTHER = ("other", 'other than any level Medallion')
+class MedallionTypes(EnumV2):
+    LAKE = ("lake", "Lake data")
+    BRONZE = ("bronze", "bronze level Medallion")
+    SILVER = ("silver", "silver level Medallion")
+    GOLD = ("gold", "gold level Medallion")
+    OTHER = ("other", "other than any level Medallion")
