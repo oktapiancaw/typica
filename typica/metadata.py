@@ -1,4 +1,3 @@
-
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -14,6 +13,17 @@ class SchemaMeta(BaseModel):
     field_alias_type: Optional[str] = Field(None, description="Alias type field")
     field_required: Optional[bool] = Field(False, description="Required field")
     field_hide: Optional[bool] = Field(False, description="Hide field")
+
+
+class SchemaRawMeta(SchemaMeta):
+    regional_field: Optional[str] = Field(None, description="Regional field")
+    none_percentage: Optional[float] = Field(
+        0.0, description="Percentage of null / none values"
+    )
+    unique_value: Optional[list[str]] = Field(
+        None, description="Unique values in field"
+    )
+    describe_field: Optional[str] = Field(None, description="Describe field")
 
 
 class SimplifieMetadata(BaseModel):
@@ -32,7 +42,9 @@ class SimplifieMetadata(BaseModel):
     sub_category: Optional[str] = Field(None)
 
     # ? Schemas
-    schemas: list[SchemaMeta] = Field(..., description="Description of all fields in data")
+    schemas: list[SchemaMeta] = Field(
+        ..., description="Description of all fields in data"
+    )
 
     # ? Database
     database_access: DBConnectionMeta | ClusterConnectionMeta
@@ -65,10 +77,9 @@ class FullMetadata(SimplifieMetadata):
 
     # ? Data lake
     # * Use case: bronze
-    lake_access: Optional[S3ConnectionMeta | DBConnectionMeta | ClusterConnectionMeta] = Field(
-        None, description="Data lake access"
-    )
+    lake_access: Optional[
+        S3ConnectionMeta | DBConnectionMeta | ClusterConnectionMeta
+    ] = Field(None, description="Data lake access")
     lake_meta_path: Optional[str] = Field(None, description="Data lake metadata path")
     lake_data_path: Optional[str] = Field(None, description="Data lake data path")
     lake_data_format: Optional[str] = Field(None, description="Data lake data format")
-
