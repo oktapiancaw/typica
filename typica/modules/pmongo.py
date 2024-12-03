@@ -53,7 +53,7 @@ class MongoConnector:
         """
 
         try:
-            self._client = MongoClient(self._meta.uri, **kwargs)
+            self._client = MongoClient(self._meta.uri, timeoutMS=20000, **kwargs)
             self._db = self._client[str(self._meta.database)]
         except (NetworkTimeout, ExecutionTimeout):
             raise ValueError("Mongo connection timed out.")
