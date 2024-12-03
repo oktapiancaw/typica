@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, RootModel, Field
 
 from .utils import MedallionTypes, LocationLevel
 from .connection import DBConnectionMeta, S3ConnectionMeta, ClusterConnectionMeta
@@ -26,6 +26,19 @@ class SchemaRawMeta(SchemaMeta):
     describe_field: Optional[str] = Field(None, description="Describe field")
 
 
+class Schemas(RootModel):
+    root: list[SchemaMeta]
+
+    def __iter__(self):  # type: ignore
+        return self.root.__iter__()
+
+    def __getitem__(self, item):
+        return self.root[item]
+
+    def __len__(self):
+        return self.root.__len__()
+
+
 class SimplifieMetadata(BaseModel):
     id: str = Field(..., description="Identifier for the metadata")
 
@@ -33,7 +46,7 @@ class SimplifieMetadata(BaseModel):
     title: str = Field(..., description="Title, name, or label for the metadata")
     source: str = Field(..., description="Source of the metadata, e.g. www.example.com")
     country: str = Field(..., description="Country of origin")
-    year: str = Field(..., description="Year of the metadata")
+    year: str | int = Field(..., description="Year of the metadata")
     range_data: str = Field(..., description="Range of data, eg. 2021-2022")
     description: Optional[str] = Field(None)
 
@@ -42,9 +55,7 @@ class SimplifieMetadata(BaseModel):
     sub_category: Optional[str] = Field(None)
 
     # ? Schemas
-    schemas: list[SchemaMeta] = Field(
-        ..., description="Description of all fields in data"
-    )
+    schemas: Schemas = Field(..., description="Description of all fields in data")
 
     # ? Database
     database_access: DBConnectionMeta | ClusterConnectionMeta

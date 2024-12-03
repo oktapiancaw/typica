@@ -8,6 +8,12 @@ class EndpointMeta(BaseModel):
     host: Optional[str] = Field("localhost", description="Connection host")
     port: Optional[str | int] = Field(8000, description="Connection port")
 
+    @property
+    def port_int(self) -> int | None:
+        if isinstance(self.port, str):
+            return int(self.port)
+        return self.port
+
 
 class AuthMeta(BaseModel):
     username: Optional[str] = Field(None, description="Database username")
@@ -38,6 +44,24 @@ class DBConnectionMeta(EndpointMeta, AuthMeta, URIConnectionMeta):
 
     @model_validator(mode="after")
     def extract_uri(self):
+        """
+        Extracts and parses the URI to populate the connection metadata fields.
+
+        This method processes the `uri` attribute to extract authentication and
+        connection details such as username, password, host, port, and database.
+        It modifies the respective attributes of the instance based on the parsed
+        URI components.
+
+        Steps involved:
+        - Strips the scheme from the URI.
+        - Splits the URI into metadata and additional query parameters.
+        - Extracts database name from query parameters if present.
+        - Parses authentication info and host details from the metadata.
+        - Converts the port to an integer.
+
+        Returns:
+            The instance with populated connection metadata fields.
+        """
         if self.uri:
             uri = re.sub(r"\w+:(//|/)", "", self.uri)
             metadata, others = (
@@ -83,36 +107,39 @@ class ClusterConnectionMeta(AuthMeta, URIConnectionMeta):
 
     @model_validator(mode="after")
     def extract_uri(self):
+        """
+        Extract URI from connection string and fill in the respective fields.
+
+        If the connection string is in the format of mongodb://user:password@host:port/database,
+        the respective fields will be filled in. If the connection string is in the format of
+        mongodb://host:port,host:port/database, the hosts will be split into a list of
+        EndpointMeta objects.
+
+        :return: The modified ClusterConnectionMeta object.
+        :rtype: ClusterConnectionMeta
+        """
         if self.uri:
             uri = re.sub(r"\w+:(//|/)", "", self.uri)
-            metadata, others = (
+            clean_meta, others = (
                 re.split(r"\/\?|\/", uri) if re.search(r"\/\?|\/", uri) else [uri, None]
             )
+            cluster_uri = []
             if others and "&" in others:
                 for other in others.split("&"):
                     if "=" in other and re.search(r"authSource", other):
                         self.database = other.split("=")[-1]
                     elif "=" not in other:
                         self.database = other
-            if "@" in metadata:
-                if "," in metadata:
-                    metadata, raw_clusters = re.split(r"\@", metadata)
-                    self.username, self.password = re.split(r"\:", metadata)
-                    cluster_uri = []
-                    for cluster in raw_clusters.split(","):
-                        hostData = re.split(r"\:", cluster)
-                        cluster_uri.append(
-                            EndpointMeta(host=hostData[0], port=int(hostData[1]))
-                        )
-                    self.cluster_uri = cluster_uri
-                else:
-                    self.username, self.password, self.host, self.port = re.split(
-                        r"\@|\:", metadata
-                    )
-            else:
-                self.host, self.port = re.split(r"\:", metadata)
-            if self.port:
-                self.port = int(self.port)
+            if "@" in clean_meta:
+                auth_meta, clean_meta = re.split(r"\@", clean_meta)
+                self.username, self.password = re.split(r"\:", auth_meta)
+
+            for cluster in clean_meta.split(","):
+                hostData = re.split(r"\:", cluster)
+                cluster_uri.append(
+                    EndpointMeta(host=hostData[0], port=int(hostData[1]))
+                )
+            self.cluster_uri = cluster_uri
         return self
 
 
@@ -138,3 +165,7 @@ class S3ConnectionMeta(EndpointMeta):
 
 class RedisConnectionMeta(EndpointMeta, AuthMeta):
     database: int = Field(..., description="Database name")
+
+
+class RMQConnectionMeta(EndpointMeta, AuthMeta):
+    vhost: Optional[str] = Field(None, description="Virtual host")
